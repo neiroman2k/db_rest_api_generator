@@ -181,8 +181,12 @@ foreach ($tables as $table_name) {
 $fp = fopen($dst_dir."/.htaccess",'w+');
 fputs($fp,'# ---
 RewriteEngine on
+
 RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteRule .htaccess - [F]
+
+RewriteCond %{REQUEST_FILENAME} !-f [OR]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule '.$config['http_root'].'(.*)$ /'.$config['api_entrypoint_file'].' [QSA,NC,L]
 ');
