@@ -145,7 +145,7 @@ function parseTable($database, $table_name, $dst_file) {
     return true;
 }
 
-$dst_dir = 'result/'.$config['project_name'];
+$dst_dir = '/var/www/html';
 $routes_dir = $dst_dir."/routes";
 @mkdir($routes_dir, 0755,true);
 $tables = $database->list_tables();
