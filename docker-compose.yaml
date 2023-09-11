@@ -8,7 +8,7 @@ services:
     ports:
       - 8008:80
     volumes:
-      - ./app/:/app
+      - ./app/:/app:ro
       - ./result:/var/www/html
       - ./etc/apache_vhost.conf:/etc/apache2/sites-enabled/000-default.conf
       - ./etc/php.ini:/usr/local/etc/php/php.ini
