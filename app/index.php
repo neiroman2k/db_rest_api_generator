@@ -1,5 +1,6 @@
 <?php
 
+global $config;
 include_once 'config.php';
 
 // подключение базы данных и файл, содержащий объекты
