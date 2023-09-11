@@ -1,13 +1,14 @@
 version: '3'
 
 services:
-  web:
+  rest_api_generator:
     build:
       context: ./
       dockerfile: Dockerfile
     ports:
-      - 8001:80
+      - 8008:80
     volumes:
-      - ./app/result/skud:/var/www/html
+      - ./app/:/app
+      - ./result:/var/www/html
       - ./etc/apache_vhost.conf:/etc/apache2/sites-enabled/000-default.conf
       - ./etc/php.ini:/usr/local/etc/php/php.ini
