@@ -2,7 +2,7 @@
 
 $config = [
     'project_name' => 'skud',
-    'http_root' => '/api/v2/',
+    'http_root' => 'api/v2/',
     'api_entrypoint_file' => 'api.php',
     'db_host' => '192.168.99.101',
     'db_name' => 'skud',
