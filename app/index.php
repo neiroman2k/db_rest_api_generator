@@ -1,4 +1,9 @@
 <?php
+$pwd = GetEnv('PWD');
+if ( $pwd != '/app' ) {
+    echo "pwd=$pwd\n";
+    die('Can only be executed from docker container');
+}
 
 global $config;
 include_once 'config.php';
@@ -29,7 +34,7 @@ function parseTable($database, $table_name, $dst_file) {
         $query_fields[] = $field_name;
     }
 
-    $class_name = ucfirst($table_name);
+    $class_name = strtoupper($table_name);
     $php_class = '<?php
         class '.$class_name.' 
         {
@@ -142,7 +147,7 @@ function parseTable($database, $table_name, $dst_file) {
     fputs($fp, $php_class);
     fclose($fp);
 
-    return true;
+    return $class_name;
 }
 
 $dst_dir = '/var/www/html';
@@ -159,7 +164,7 @@ foreach ($tables as $table_name) {
     if ( !in_array($table_name, $config['ignore_tables']) ) {
         $route_path = $routes_dir."/$table_name.php";
         if ( $result_route = parseTable($database,$table_name, $route_path) ) {
-            $class_name = ucfirst($table_name);
+            $class_name = $result_route;
             $routes_switch[] = "\t\t\t\t".'case "'.$table_name.'": 
                 {
                     $route = new '.$class_name.'($db);
