@@ -2,6 +2,7 @@ version: '3'
 
 services:
   rest_api_generator:
+    container_name: rest_api_generator
     build:
       context: ./
       dockerfile: Dockerfile
@@ -10,5 +11,5 @@ services:
     volumes:
       - ./app/:/app:ro
       - ./result:/var/www/html
-      - ./etc/apache_vhost.conf:/etc/apache2/sites-enabled/000-default.conf
-      - ./etc/php.ini:/usr/local/etc/php/php.ini
+      - ./etc/apache_vhost.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      #- ./etc/php.ini:/usr/local/etc/php/php.ini
