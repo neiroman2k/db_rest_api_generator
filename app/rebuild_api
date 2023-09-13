@@ -3,3 +3,5 @@
 cd /app
 php ./index.php
 
+cd /var/www/html
+/usr/bin/tar zcvf api.tgz --exclude=api.tgz .
