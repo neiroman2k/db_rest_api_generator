@@ -194,7 +194,7 @@ RewriteRule .htaccess - [F]
 
 RewriteCond %{REQUEST_FILENAME} !-f [OR]
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule '.$config['http_root'].'(.*)$ /'.$config['api_entrypoint_file'].' [QSA,NC,L]
+RewriteRule '.substr($config['http_root'],1).'(.*)$ /'.$config['api_entrypoint_file'].' [QSA,NC,L]
 ');
 fclose($fp);
 
@@ -223,7 +223,7 @@ $db = $database->getConnection(
     $config["db_password"]
 );
 
-$http_root = "/api/v2/";
+$http_root = "'.$config['http_root'].'";
 $uri = $_SERVER["REQUEST_URI"];
 // For test
 // $uri = "/api/v2/cards/read/?id=1";
