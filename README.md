@@ -1,9 +1,13 @@
+Конфигурация настраивается в файле
+
+    app/config.php 
+
 Для запуска контейнера
 
-    docker compose up --build
+    docker compose up --build -d
 
 Если выскакивает ошибка "php could not find driver", 
-то необходимо в файле C:\php\php.ini раскоментировать строку
+то необходимо в файле etc/php.ini раскоментировать строку
 
     extension=pdo_mysql
 
@@ -15,13 +19,13 @@
 
     В контейнере - /var/www/html
     В приложении - ./result
-    http://localhost:8008/api.tgz
+    http://localhost:8007/api.tgz
 
 
-API по умолчанию доступно на
+Сгенерированное API для тестов по умолчанию доступно на
 
-    http://localhost:8008/api/v2/....
+    http://localhost:8007/api/....
 
 Например
 
-    http://localhost:8008/api/v2/cards/read
+    http://localhost:8007/api/cards/read
