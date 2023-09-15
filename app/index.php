@@ -398,8 +398,10 @@ copy('database.php',$dst_dir."/database.php");
 
 # Generate entrypoint for api
 $fp = fopen($dst_dir."/".$config['api_entrypoint_file'],'w+');
-fputs($fp,'
-<?php
+fputs($fp,'<?php
+
+error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
+
 $config = [
   "db_host" => "'.$config['db_host'].'",
   "db_name" => "'.$config['db_name'].'",
