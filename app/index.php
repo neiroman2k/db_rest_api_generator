@@ -63,7 +63,8 @@ function parseTable($database, $table_name, $dst_file) {
                         $result = $this->read();
                         break;                    
                     }                
-                    case "insert": {
+                    case "create": {
+                        $result = $this->create();
                         break;                    
                     }                
                     case "update": {
@@ -131,6 +132,76 @@ function parseTable($database, $table_name, $dst_file) {
                     "code" => 200,
                     "items" => $data
                 ];
+            }
+            
+            /** *****************
+                Create data            
+            ********************/
+            public function create() {               
+                $new_data = $_REQUEST;
+                unset($new_data["id"]);
+                
+                if ( count($new_data) == 0 ) {
+                      http_response_code(501);
+                      return [
+                        "code" => 501,
+                        "items" => "No data for create"
+                      ];                                   
+                      return;
+                }
+                
+                //print("new_data =>");print_r($new_data);print("<br>");
+                //phpinfo();die();
+                
+                $fields_arr = [];
+                $bind_values_arr = [];
+                foreach ($new_data as $field_name => $new_value ) {
+                    if ( !in_array($field_name, $this->table_fields) ) {
+                      http_response_code(501);
+                      return [
+                        "code" => 501,
+                        "items" => "Field [$field_name] not exists in table [$this->table_name]"
+                      ];                                   
+                      return;
+                    }
+                    
+                    $fields_arr[] = "`$field_name`";
+                    $bind_values_arr[] = ":$field_name";
+                };
+                $fields_str = join(",",$fields_arr);
+                $bind_values_str = join(",",$bind_values_arr);          
+                      
+                $query = "insert into $this->table_name ($fields_str) values ($bind_values_str)";
+                $stmt = $this->conn->prepare($query);
+                
+                foreach ($new_data as $field_name => $new_value ) {
+                    $stmt->bindValue(":$field_name", $new_value);
+                };
+                //print("$query<br>");
+                
+                // выполняем запрос
+                try {
+                    $this->conn->beginTransaction();
+                    $stmt->execute();
+                    $new_id = $this->conn->lastInsertId();               
+                    $this->conn->commit();
+                    
+                    return [
+                        "code" => 200,
+                        "msg" => "Create complete",
+                        "id" => $new_id
+                    ];
+                } catch(PDOException $e) {
+                    $this->conn->rollback();
+                    
+                    http_response_code(501);
+                      
+                    return [
+                        "code" => 501,
+                        "msg" => "Internal exception on create",
+                        "details" => $e->getMessage()
+                    ];
+                }
             }
 
             /**
