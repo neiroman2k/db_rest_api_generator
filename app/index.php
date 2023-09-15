@@ -55,6 +55,10 @@ function parseTable($database, $table_name, $dst_file) {
             
             public function action($action) {
                 switch ($action) {
+                    case "get": {
+                        $result = $this->get($_REQUEST["id"]);
+                        break;                    
+                    }                
                     case "read": {
                         $result = $this->read();
                         break;                    
@@ -78,17 +82,19 @@ function parseTable($database, $table_name, $dst_file) {
                 return $result;                
             }
             
-            public function read() {
-                $id = $_REQUEST["id"];
+            /** *****************
+                Get single item            
+            ********************/
+            public function get($id) {
+                if ( !$id ) {
+                    http_response_code(501);
                 
-                $query = "select ' . join(',', $query_fields) . ' from ' . $table_name . '";
-                if ( $id ) {
-                    $query .= " where id=:id";
-                    $stmt = $this->conn->prepare($query);
-                    $stmt->bindParam(":id", $id); 
-                } else {
-                    $stmt = $this->conn->prepare($query);
+                    return ["code" => 501, "message" => "[id] parameter is not defined"];                
                 }
+                
+                $query = "select ' . join(',', $query_fields) . ' from ' . $table_name . ' a where a.id=:id";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindValue(":id", $id); 
                 
                 // выполняем запрос
                 $stmt->execute();
@@ -100,11 +106,27 @@ function parseTable($database, $table_name, $dst_file) {
                     // код ответа - 404 Не найдено
                     http_response_code(404);
                 
-                    // сообщим пользователю, что такой товар не существует
-                    //echo json_encode(, JSON_UNESCAPED_UNICODE);
-                    return ["code" => 404, "message" => "Товар не существует"];
+                    return ["code" => 404, "message" => "Item does not exist"];
                 }
                 
+                return [
+                    "code" => 200,
+                    "item" => $data
+                ];
+            }
+            /** *****************
+                Read data            
+            ********************/
+            public function read() {
+                $query = "select ' . join(',', $query_fields) . ' from ' . $table_name . ' a";
+                $stmt = $this->conn->prepare($query);
+                
+                // выполняем запрос
+                $stmt->execute();
+                
+                // получаем извлеченную строку
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);                
+               
                 return [
                     "code" => 200,
                     "items" => $data
