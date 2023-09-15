@@ -447,8 +447,7 @@ switch ( $route ) {
 
 print(json_encode($result));
 
-?>
-');
+?>');
 fclose($fp);
 
 ?>
