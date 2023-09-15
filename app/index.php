@@ -1,7 +1,7 @@
 <?php
 $pwd = GetEnv('PWD');
 if ( $pwd != '/app' ) {
-    echo "pwd=$pwd\n";
+    print("pwd=$pwd\n");
     die('Can only be executed from docker container');
 }
 
@@ -231,11 +231,11 @@ if ( $uri != "" ) {
   $len = strlen($http_root);
   $uri = substr($uri,$len);
 }
-print("uri=$uri\n");
+//print("uri=$uri\n");
 $url_arr=parse_url($uri);
-print_r($url_arr); 
+//print_r($url_arr); 
 $path = $url_arr["path"];
-$query = $url_arr["query"];
+//$query = $url_arr["query"];
 
 list($route,$action) = explode("/",  $path);
 
