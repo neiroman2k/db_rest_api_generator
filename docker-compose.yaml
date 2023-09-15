@@ -7,7 +7,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     ports:
-      - 8008:80
+      - 8007:80
     volumes:
       - ./app/:/app:ro
       - ./result:/var/www/html
