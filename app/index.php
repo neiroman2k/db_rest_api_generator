@@ -72,6 +72,7 @@ function parseTable($database, $table_name, $dst_file) {
                         break;                    
                     }                
                     case "delete": {
+                        $result = $this->delete();
                         break;                    
                     }
                     default: {
@@ -205,19 +206,40 @@ function parseTable($database, $table_name, $dst_file) {
             }
 
             /**
+              Update data
+              
               $new_data = [
                   "field_name" => "new data",                
               ]              
             */ 
             public function update() {
-                $id = $_REQUEST["id"];
-                $new_data = $_POST;
+                if ( !($id = $_REQUEST["id"])) {
+                      http_response_code(501);
+                      return [
+                        "code" => 501,
+                        "items" => "No [id] field in request"
+                      ];                                   
+                };
+
+                $found = $this->get($id);
+                if ( $found["code"] != 200 ) {
+                    return $found;
+                }
+                
+                $new_data = $_REQUEST;
                 unset($new_data["id"]);
                 
-                if ( $new_data = [] ) {
-                    return false;
+                if ( count($new_data) == 0 ) {
+                      http_response_code(501);
+                      return [
+                        "code" => 501,
+                        "items" => "No data for update"
+                      ];                                   
+                      return;
                 }
-
+                
+                //print("new_data =>");print_r($new_data);print("<br>");
+                
                 $fields_arr = [];
                 foreach ($new_data as $field_name => $new_value ) {
                     if ( !in_array($field_name, $this->table_fields) ) {
@@ -233,15 +255,85 @@ function parseTable($database, $table_name, $dst_file) {
                 };
                 $fields_str = join(",",$fields_arr);          
                       
-                $query = "update $this->table_name set $fields_str where id=:id";
+                $query = "update $this->table_name `a` set $fields_str where a.`id`=:id";
                 $stmt = $this->conn->prepare($query);
+                //print("$query<br>");
                 
                 foreach ($new_data as $field_name => $new_value ) {
-                    $stmt->bindParam(":$field_name", $new_value);
+                    $stmt->bindValue(":$field_name", $new_value);
+                    //print("bindValue :$field_name => $new_value<br>");
                 };
-                $stmt->bindParam(":id", $id);
-
-                print("$query\n");
+                $stmt->bindValue(":id", $id);
+                
+                // выполняем запрос
+                try {
+                    $this->conn->beginTransaction();
+                    $stmt->execute();
+                    $this->conn->commit();
+                    
+                    return [
+                        "code" => 200,
+                        "msg" => "Update complete"
+                    ];
+                } catch(PDOException $e) {
+                    $this->conn->rollback();
+                    
+                    http_response_code(501);
+                    
+                    return [
+                        "code" => 501,
+                        "msg" => "Internal exception on update",
+                        "details" => $e->getMessage()
+                    ];
+                }
+            }
+            
+            /**
+              Delete data
+              
+            */ 
+            public function delete() {
+                if ( ! ($id = $_REQUEST["id"])) {
+                      http_response_code(501);
+                      return [
+                        "code" => 501,
+                        "items" => "No [id] field in request"
+                      ];                                   
+                };
+                
+                $found = $this->get($id);
+                if ( $found["code"] != 200 ) {
+                    return $found;
+                }
+                
+                $query = "delete from $this->table_name where id=:id";
+                $stmt = $this->conn->prepare($query);
+                //print("$query<br>");
+                
+                $stmt->bindValue(":id", $id);
+                
+                // выполняем запрос
+                try {
+                    $this->conn->beginTransaction();
+                    $stmt->execute();
+                    $this->conn->commit();
+                    
+                    return [
+                        "code" => 200,
+                        "msg" => "Delete complete"
+                    ];
+                } catch(PDOException $e) {
+                    $this->conn->rollback();
+                    
+                    http_response_code(501);
+                    
+                    return [
+                        "code" => 501,
+                        "msg" => "Internal exception on delete",
+                        "details" => $e->getMessage()
+                    ];
+                }
+                                
             }
         }        
     ?>';
