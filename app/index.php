@@ -25,13 +25,15 @@ function parseTable($database, $table_name, $dst_file) {
     //print_r($fields);
 
     $f = [];
+    $fields_arr = [];
     $query_fields = [];
     foreach ($fields as $field) {
         $field_name = $field['Field'];
         $field_type = $field['Type'];
         $f[] = "            public \$$field_name; // $field_type";
 
-        $query_fields[] = $field_name;
+        $fields_arr[] = "\"$field_name\""; // для списка полей
+        $query_fields[] = "`a`.`$field_name`";
     }
 
     $class_name = strtoupper($table_name);
@@ -42,9 +44,8 @@ function parseTable($database, $table_name, $dst_file) {
             private $conn;
             private $table_name = "'.$table_name.'";
             
-            // список полей'."\n".
-            //join("\n",$f).
-        '
+            // список полей
+            private $table_fields = [ '. join(", ", $fields_arr) . '];
             
             // конструктор для соединения с базой данных
             public function __construct($db)
@@ -126,7 +127,16 @@ function parseTable($database, $table_name, $dst_file) {
 
                 $fields_arr = [];
                 foreach ($new_data as $field_name => $new_value ) {
-                    $fields[] = "$field_name=:$field_name";
+                    if ( !in_array($field_name, $this->table_fields) ) {
+                      http_response_code(501);
+                      return [
+                        "code" => 501,
+                        "items" => "Field [$field_name] not exists in table [$this->table_name]"
+                      ];                                   
+                      return;
+                    }
+                    
+                    $fields_arr[] = "`a`.`$field_name`=:$field_name";
                 };
                 $fields_str = join(",",$fields_arr);          
                       
